@@ -11,6 +11,6 @@ func handlerAgg(s *state, cmd command) error {
 		return fmt.Errorf("couldn't fetch feed: %w", err)
 	}
 	// print the feed
-	fmt.Println("Feed: %+v\n", feed)
+	fmt.Printf("Feed: %+v\n", feed)
 	return nil
 }
