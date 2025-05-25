@@ -1,2 +1,3 @@
 SETUP.md
-internal/database/*
+out
+.env
