@@ -9,12 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerFollow(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
-
+func handlerFollow(s *state, cmd command, user database.User) error {
+	// Add a new command called follow. It takes one arg:
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
 	}
@@ -41,12 +37,8 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerListFeedFollows(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
-
+func handlerListFeedFollows(s *state, cmd command, user database.User) error {
+	// Add a new command called following. It takes no args.
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("couldn't get feed follows: %w", err)
@@ -62,6 +54,31 @@ func handlerListFeedFollows(s *state, cmd command) error {
 		fmt.Printf("* %s\n", ff.FeedName)
 	}
 
+	return nil
+}
+
+// Add a new unfollow command that accepts a feed's URL as an argument and unfollows it for the current user. This is, of course, a "logged in" command - use the new middleware.
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	// Add a new command called unfollow. It takes one arg:
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
+	}
+
+	feed, err := s.db.GetFeedByURL(context.Background(), cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("couldn't get feed: %w", err)
+	}
+
+	// Delete the follow
+	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't delete feed follow: %w", err)
+	}
+
+	fmt.Println("Feed unfollowed successfully.")
 	return nil
 }
 

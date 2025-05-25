@@ -9,15 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	// 	Add a new command called addfeed. It takes two args:
 	// 	name: The name of the feed
 	// 	url: The URL of the feed
 	// At the top of the handler, get the current user from the database and connect the feed to that user.
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
 
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
